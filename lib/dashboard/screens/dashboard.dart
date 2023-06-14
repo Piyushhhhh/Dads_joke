@@ -1,4 +1,5 @@
 import 'package:dads_joke/constants/colors.dart';
+import 'package:dads_joke/constants/shimmers.dart';
 import 'package:dads_joke/dashboard/provider/jokes_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,7 @@ class DashBoard extends StatefulWidget {
 
 class _DashBoardState extends State<DashBoard> {
   ScrollController scrollController = ScrollController();
+  TextEditingController searchController = TextEditingController();
   late JokesProvider jokesProvider;
   @override
   void initState() {
@@ -24,7 +26,7 @@ class _DashBoardState extends State<DashBoard> {
   scrollListner() {
     if ((scrollController.position.pixels >
         scrollController.position.maxScrollExtent - 90)) {
-      jokesProvider.fetchData();
+      jokesProvider.fetchData(query: searchController.text);
     }
   }
 
@@ -33,6 +35,7 @@ class _DashBoardState extends State<DashBoard> {
     jokesProvider = context.watch<JokesProvider>();
     return Consumer<JokesProvider>(
       builder: (context, jokesProvider, child) => Scaffold(
+        backgroundColor: AppColors.background(),
         appBar: AppBar(
           flexibleSpace: Container(
             decoration: BoxDecoration(
@@ -44,7 +47,7 @@ class _DashBoardState extends State<DashBoard> {
             ),
           ),
           title: TextField(
-            // controller: _searchController,
+            controller: searchController,
             style: const TextStyle(color: Colors.white),
             cursorColor: Colors.white,
             decoration: InputDecoration(
@@ -57,7 +60,9 @@ class _DashBoardState extends State<DashBoard> {
               border: InputBorder.none,
             ),
             onChanged: (value) {
-              // Perform search functionality here
+              jokesProvider.jokeSearchResult.results = [];
+              jokesProvider.currentPageNumber = 1;
+              jokesProvider.fetchData(query: value);
             },
           ),
         ),
@@ -66,7 +71,9 @@ class _DashBoardState extends State<DashBoard> {
           child: Column(
             children: [
               jokesProvider.isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? Column(
+                      children: [shimmerList(), shimmerList(), shimmerList()],
+                    )
                   : ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),

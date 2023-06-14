@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class JokesProvider extends ChangeNotifier {
   JokeSearchResult jokeSearchResult = JokeSearchResult();
-  int _currentPageNumber = 1; // Current Page to get Data from API
+  int currentPageNumber = 1; // Current Page to get Data from API
   bool _isLoading = false;
 
   bool get isLoading => _isLoading;
@@ -16,16 +16,16 @@ class JokesProvider extends ChangeNotifier {
   fetchData({String? query}) async {
     _isLoading = true;
     try {
-      if (_currentPageNumber > 1) {
+      if (currentPageNumber > 1) {
         JokeSearchResult results = await API()
-            .getSearchedJokes(pageId: _currentPageNumber, query: query);
+            .getSearchedJokes(pageId: currentPageNumber, query: query);
         jokeSearchResult.results =
             ((jokeSearchResult.results ?? []) + (results.results ?? []));
       } else {
         jokeSearchResult = await API()
-            .getSearchedJokes(pageId: _currentPageNumber, query: query);
+            .getSearchedJokes(pageId: currentPageNumber, query: query);
       }
-      _currentPageNumber += 1;
+      currentPageNumber += 1;
       _isLoading = false;
       notifyListeners();
     } catch (e) {
